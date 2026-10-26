@@ -1,0 +1,6 @@
+{
+  "name": "Aditya Online",
+  "description": "Official native Android customer app for Aditya Online Center, Kateya, Bihar — browse digital cyber cafe services, submit applications, and track orders in real time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

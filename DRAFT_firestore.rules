@@ -1,0 +1,220 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        ('email_verified' in request.auth.token &&
+         request.auth.token.email_verified == true &&
+         'email' in request.auth.token &&
+         request.auth.token.email == 'adityakty77@gmail.com')
+      );
+    }
+
+    // 1. Validation Blueprint: ServiceItem
+    function isValidServiceItem(data) {
+      return data.keys().hasAll([
+               'tenantId', 'title', 'titleHi', 'category', 'description', 'descriptionHi',
+               'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'createdAt', 'updatedAt'
+             ]) &&
+             data.keys().hasOnly([
+               'tenantId', 'title', 'titleHi', 'category', 'description', 'descriptionHi',
+               'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'createdAt', 'updatedAt'
+             ]) &&
+             data.tenantId is string && data.tenantId == 'aditya_online_center' &&
+             data.title is string && data.title.size() >= 2 && data.title.size() <= 120 &&
+             data.titleHi is string && data.titleHi.size() >= 2 && data.titleHi.size() <= 200 &&
+             data.category is string && data.category in ['resume', 'gov_form', 'scholarship', 'pdf_doc', 'certificate'] &&
+             data.description is string && data.description.size() >= 5 && data.description.size() <= 2000 &&
+             data.descriptionHi is string && data.descriptionHi.size() >= 5 && data.descriptionHi.size() <= 2500 &&
+             data.price is int && data.price >= 0 && data.price <= 100000 &&
+             data.turnaroundTime is string && data.turnaroundTime.size() >= 2 && data.turnaroundTime.size() <= 80 &&
+             data.requirements is list && data.requirements.size() <= 10 &&
+             (data.requirements.size() == 0 || (data.requirements[0] is string && data.requirements[0].size() <= 200)) &&
+             data.imageUrl is string && data.imageUrl.size() <= 500 &&
+             data.active is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 2. Validation Blueprint: ServiceOrder
+    function isValidServiceOrder(data) {
+      return data.keys().hasAll([
+               'orderNumber', 'userId', 'customerUid', 'customerName', 'customerPhone', 'customerEmail',
+               'sourceChannel', 'serviceId', 'serviceTitleSnapshot', 'priceSnapshot',
+               'applicantDetailsSummary', 'documentLinks', 'upiReference', 'paymentStatus',
+               'status', 'adminNotes', 'deliveryFileUrl', 'createdAt', 'updatedAt'
+             ]) &&
+             data.keys().hasOnly([
+               'orderNumber', 'userId', 'customerUid', 'customerName', 'customerPhone', 'customerEmail',
+               'sourceChannel', 'serviceId', 'serviceTitleSnapshot', 'priceSnapshot',
+               'applicantDetailsSummary', 'documentLinks', 'upiReference', 'paymentStatus',
+               'status', 'adminNotes', 'deliveryFileUrl', 'createdAt', 'updatedAt'
+             ]) &&
+             data.orderNumber is string && data.orderNumber.size() >= 5 && data.orderNumber.size() <= 40 &&
+             data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.customerUid is string && data.customerUid == data.userId &&
+             data.customerName is string && data.customerName.size() >= 2 && data.customerName.size() <= 100 &&
+             data.customerPhone is string && data.customerPhone.size() == 10 && data.customerPhone.matches('^[0-9]{10}$') &&
+             data.customerEmail is string && data.customerEmail.size() <= 150 &&
+             data.sourceChannel is string && data.sourceChannel in ['android', 'website'] &&
+             isValidId(data.serviceId) &&
+             data.serviceTitleSnapshot is string && data.serviceTitleSnapshot.size() >= 2 && data.serviceTitleSnapshot.size() <= 150 &&
+             data.priceSnapshot is int && data.priceSnapshot >= 0 && data.priceSnapshot <= 100000 &&
+             data.applicantDetailsSummary is string && data.applicantDetailsSummary.size() >= 2 && data.applicantDetailsSummary.size() <= 3000 &&
+             data.documentLinks is list && data.documentLinks.size() <= 10 &&
+             (data.documentLinks.size() == 0 || (data.documentLinks[0] is string && data.documentLinks[0].size() <= 500)) &&
+             data.upiReference is string && data.upiReference.size() <= 50 &&
+             data.paymentStatus is string && data.paymentStatus in ['unpaid', 'pending_verification', 'verified', 'rejected'] &&
+             data.status is string && data.status in ['pending', 'processing', 'action_required', 'completed', 'cancelled'] &&
+             data.adminNotes is string && data.adminNotes.size() <= 1000 &&
+             data.deliveryFileUrl is string && data.deliveryFileUrl.size() <= 500 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 3. Validation Blueprint: UserProfile
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+               'userId', 'name', 'email', 'phone', 'address', 'preferredLanguage', 'createdAt', 'updatedAt'
+             ]) &&
+             data.keys().hasOnly([
+               'userId', 'name', 'email', 'phone', 'address', 'preferredLanguage', 'createdAt', 'updatedAt'
+             ]) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.phone is string && data.phone.size() <= 15 &&
+             data.address is string && data.address.size() <= 300 &&
+             data.preferredLanguage is string && data.preferredLanguage in ['en', 'hi'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // Collection: /services/{serviceId}
+    match /services/{serviceId} {
+      allow get: if isSignedIn() && isValidId(serviceId) && (existing().tenantId == 'aditya_online_center' || isAdmin());
+      allow list: if isSignedIn() && (existing().tenantId == 'aditya_online_center' || existing().active == true || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(serviceId) &&
+                       isValidServiceItem(incoming()) &&
+                       isAdmin();
+
+      allow update: if isSignedIn() &&
+                       isValidId(serviceId) &&
+                       isValidServiceItem(incoming()) &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().tenantId == existing().tenantId &&
+                       isAdmin() &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'title', 'titleHi', 'category', 'description', 'descriptionHi',
+                         'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(serviceId) && isAdmin();
+    }
+
+    // Collection: /orders/{orderId}
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && isValidId(orderId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(orderId) &&
+                       isValidServiceOrder(incoming()) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().customerUid == request.auth.uid &&
+                       incoming().status == 'pending' &&
+                       incoming().paymentStatus in ['unpaid', 'pending_verification'] &&
+                       incoming().adminNotes == '' &&
+                       incoming().deliveryFileUrl == '' &&
+                       exists(/databases/$(database)/documents/services/$(incoming().serviceId)) &&
+                       get(/databases/$(database)/documents/services/$(incoming().serviceId)).data.active == true &&
+                       get(/databases/$(database)/documents/services/$(incoming().serviceId)).data.price == incoming().priceSnapshot;
+
+      allow update: if isSignedIn() &&
+                       isValidId(orderId) &&
+                       isValidServiceOrder(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().customerUid == existing().customerUid &&
+                       incoming().orderNumber == existing().orderNumber &&
+                       incoming().serviceId == existing().serviceId &&
+                       incoming().serviceTitleSnapshot == existing().serviceTitleSnapshot &&
+                       incoming().priceSnapshot == existing().priceSnapshot &&
+                       incoming().sourceChannel == existing().sourceChannel &&
+                       incoming().createdAt == existing().createdAt && (
+                         // Action 1: Admin order management & payment verification
+                         (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+                           'status', 'paymentStatus', 'adminNotes', 'deliveryFileUrl', 'updatedAt'
+                         ])) ||
+                         // Action 2: Customer submits/updates UPI reference on non-terminal order
+                         (existing().userId == request.auth.uid &&
+                          existing().status in ['pending', 'action_required'] &&
+                          incoming().status == existing().status &&
+                          incoming().upiReference.size() >= 6 &&
+                          incoming().paymentStatus == 'pending_verification' &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['upiReference', 'paymentStatus', 'updatedAt'])) ||
+                         // Action 3: Customer cancels their own pending order
+                         (existing().userId == request.auth.uid &&
+                          existing().status == 'pending' &&
+                          incoming().status == 'cancelled' &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+                       );
+
+      allow delete: if false;
+    }
+
+    // Collection: /users/{userId}
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if isSignedIn() && isAdmin() && existing().userId is string;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'email', 'phone', 'address', 'preferredLanguage', 'updatedAt'
+                       ]);
+
+      allow delete: if false;
+    }
+
+    // Collection: /admins/{adminId}
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (request.auth.uid == adminId || isAdmin());
+      allow list, create, update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="360dp"
+    android:height="200dp"
+    android:viewportWidth="360"
+    android:viewportHeight="200">
+    <!-- Deep Obsidian & Charcoal Gradient Canvas -->
+    <path android:pathData="M0,0h360v200h-360z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="360"
+                android:endY="200"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#0A0B0E" />
+                <item android:offset="0.6" android:color="#14171F" />
+                <item android:offset="1.0" android:color="#231610" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Subtle Cyber Grid Lines -->
+    <path
+        android:strokeColor="#1F2937"
+        android:strokeWidth="1"
+        android:pathData="M0,40h360M0,80h360M0,120h360M0,160h360M60,0v200M120,0v200M180,0v200M240,0v200M300,0v200" />
+    <!-- Glowing Orange Portal Halo -->
+    <path
+        android:fillColor="#22FF6D00"
+        android:pathData="M270,100m-72,0a72,72 0,1 1,144 0a72,72 0,1 1,-144 0" />
+    <path
+        android:fillColor="#44FF6D00"
+        android:pathData="M270,100m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0" />
+    <!-- Isometric Digital Document Card 1 (Back) -->
+    <path
+        android:fillColor="#1E2433"
+        android:strokeColor="#C0C7D6"
+        android:strokeWidth="1.5"
+        android:pathData="M210,36h68v88h-68z" />
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M222,50h32v6h-32zM222,64h44v4h-44zM222,74h44v4h-44zM222,84h28v4h-28z" />
+    <!-- Isometric Digital Document Card 2 (Front Highlight) -->
+    <path
+        android:fillColor="#14171F"
+        android:strokeColor="#FF6D00"
+        android:strokeWidth="2"
+        android:pathData="M244,62h72v94h-72z" />
+    <!-- Verified Seal & Lines -->
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M256,78h36v8h-36z" />
+    <path
+        android:fillColor="#C0C7D6"
+        android:pathData="M256,94h48v4h-48zM256,104h48v4h-48zM256,114h32v4h-32z" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M298,134m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <!-- Connectivity Nodes -->
+    <path
+        android:strokeColor="#FF6D00"
+        android:strokeWidth="2"
+        android:pathData="M40,150 L96,110 L152,136 L210,82" />
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M40,150m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M96,110m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M152,136m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>

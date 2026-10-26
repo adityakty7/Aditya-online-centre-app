@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Aditya Online</string>
+    <string name="brand_full_name">Aditya Online Center</string>
+    <string name="brand_location">Kateya, Gopalganj, Bihar</string>
+    <string name="brand_tagline_en">Digital Cyber Cafe &amp; Citizen Service Portal</string>
+    <string name="brand_tagline_hi">डिजिटल साइबर कैफे और ऑनलाइन सेवा केंद्र, कटेया (बिहार)</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_with_google_hi">गूगल अकाउंट से लॉग इन करें</string>
+    <string name="nav_home">Services</string>
+    <string name="nav_orders">My Orders</string>
+    <string name="nav_profile">Profile &amp; Help</string>
+    <string name="search_services_placeholder">Search resume, scholarship, PAN, RTPS, PDF…</string>
+    <string name="apply_now">Apply Now</string>
+    <string name="submit_application">Submit Confirmed Order</string>
+    <string name="upi_manual_notice">Note: Entering a UPI Reference (UTR) marks payment as Pending Verification. An administrator at Aditya Online Center verifies bank receipt before marking Paid.</string>
+    <string name="privacy_security_notice">Security Guarantee: We never ask for banking PINs, passwords, or Aadhaar OTPs in this form. Your orders are isolated to your Google account.</string>
+</resources>

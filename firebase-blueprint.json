@@ -1,0 +1,277 @@
+{
+  "entities": {
+    "ServiceItem": {
+      "title": "ServiceItem",
+      "description": "Digital cyber cafe service managed by Aditya Online Center admin and displayed in the website and Android catalogues.",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "Shared business identifier ('aditya_online_center') used for scoped catalogue queries."
+        },
+        "title": {
+          "type": "string",
+          "description": "Service title in English."
+        },
+        "titleHi": {
+          "type": "string",
+          "description": "Service title in Hindi."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["resume", "gov_form", "scholarship", "pdf_doc", "certificate"],
+          "description": "Service category key."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description in English."
+        },
+        "descriptionHi": {
+          "type": "string",
+          "description": "Detailed description in Hindi."
+        },
+        "price": {
+          "type": "integer",
+          "description": "Authoritative service fee in INR."
+        },
+        "turnaroundTime": {
+          "type": "string",
+          "description": "Estimated processing time."
+        },
+        "requirements": {
+          "type": "array",
+          "description": "Bounded list of required documents (up to 10 strings)."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "HTTPS URL or resource identifier for the service visual."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Whether the service can currently be ordered by customers."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "tenantId",
+        "title",
+        "titleHi",
+        "category",
+        "description",
+        "descriptionHi",
+        "price",
+        "turnaroundTime",
+        "requirements",
+        "imageUrl",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ServiceOrder": {
+      "title": "ServiceOrder",
+      "description": "Customer order submitted from either the website or native Android app into the shared order database.",
+      "type": "object",
+      "properties": {
+        "orderNumber": {
+          "type": "string",
+          "description": "Human-readable unique order ID (e.g., AOC-20261026-1234)."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Authenticated customer UID for rule ownership enforcement."
+        },
+        "customerUid": {
+          "type": "string",
+          "description": "Authenticated customer UID (matches userId)."
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Full name of the applicant."
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "10-digit Indian mobile number of the applicant."
+        },
+        "customerEmail": {
+          "type": "string",
+          "description": "Email address of the customer."
+        },
+        "sourceChannel": {
+          "type": "string",
+          "enum": ["android", "website"],
+          "description": "Origin channel of the order."
+        },
+        "serviceId": {
+          "type": "string",
+          "description": "ID of the ordered service in /services/{serviceId}."
+        },
+        "serviceTitleSnapshot": {
+          "type": "string",
+          "description": "Service title captured at order time."
+        },
+        "priceSnapshot": {
+          "type": "integer",
+          "description": "Verified service price in INR captured at order time."
+        },
+        "applicantDetailsSummary": {
+          "type": "string",
+          "description": "Structured summary of service-specific application fields."
+        },
+        "documentLinks": {
+          "type": "array",
+          "description": "Bounded list of attached document file names or cloud share links (up to 10 strings)."
+        },
+        "upiReference": {
+          "type": "string",
+          "description": "Optional 12-digit UPI UTR reference provided for manual admin verification."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "enum": ["unpaid", "pending_verification", "verified", "rejected"],
+          "description": "Payment verification status (only admins can mark verified)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "processing", "action_required", "completed", "cancelled"],
+          "description": "Order fulfillment status."
+        },
+        "adminNotes": {
+          "type": "string",
+          "description": "Remarks or instructions added by the admin."
+        },
+        "deliveryFileUrl": {
+          "type": "string",
+          "description": "HTTPS download URL for the completed document provided by admin."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "orderNumber",
+        "userId",
+        "customerUid",
+        "customerName",
+        "customerPhone",
+        "customerEmail",
+        "sourceChannel",
+        "serviceId",
+        "serviceTitleSnapshot",
+        "priceSnapshot",
+        "applicantDetailsSummary",
+        "documentLinks",
+        "upiReference",
+        "paymentStatus",
+        "status",
+        "adminNotes",
+        "deliveryFileUrl",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Customer profile and preferences stored under /users/{userId}.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Customer display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Customer email address."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Customer 10-digit mobile number."
+        },
+        "address": {
+          "type": "string",
+          "description": "Customer locality/village in Kateya, Bihar."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["en", "hi"],
+          "description": "Preferred UI language code."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "email",
+        "phone",
+        "address",
+        "preferredLanguage",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted administrator marker document under /admins/{adminId}.",
+      "type": "object",
+      "properties": {
+        "adminId": {
+          "type": "string",
+          "description": "Administrator UID."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp."
+        }
+      },
+      "required": ["adminId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/ServiceItem" },
+      "description": "Shared service catalogue managed by admins and read by authenticated customers."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/ServiceOrder" },
+      "description": "Shared order collection storing website and Android customer orders."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private customer profile documents restricted to owner or admin."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Read-only admin authorization lookup collection."
+    }
+  }
+}
