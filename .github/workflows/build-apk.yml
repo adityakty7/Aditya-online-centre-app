@@ -12,41 +12,14 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses & Install API 36.1
+      - name: Verify Signed APK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0" || true
-          sdkmanager "platforms;android-36.1" || true
-
-      - name: Setup Gradle 9.3.1
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.3.1'
-
-      - name: Prepare Debug Keystore & Config
-        run: |
-          if [ ! -f debug.keystore ]; then
-            if [ -f debug.keystore.base64 ]; then
-              base64 -d debug.keystore.base64 > debug.keystore
-            else
-              keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-            fi
-          fi
-
-      - name: Build Debug APK
-        run: gradle assembleDebug --no-daemon
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ./Aditya-Online-Center.apk
 
       - name: Upload Aditya Online APK
         uses: actions/upload-artifact@v4
         with:
           name: Aditya-Online-Center-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ./Aditya-Online-Center.apk
+          if-no-files-found: error
