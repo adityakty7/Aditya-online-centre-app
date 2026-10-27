@@ -1,5 +1,6 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
 import java.time.Duration
+import java.util.Base64
 
 plugins {
   alias(libs.plugins.android.application)
@@ -151,3 +152,7 @@ tasks.withType<Test> {
     events("passed", "failed", "skipped")
   }
 }
+
+
+
+

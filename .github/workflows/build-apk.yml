@@ -5,6 +5,9 @@ on:
     branches: [ "*" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -12,14 +15,23 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
 
-      - name: Verify Signed APK
+      - name: Assemble Verified Signed APK
         run: |
-          ls -lh app/build/outputs/apk/debug/app-debug.apk
-          cp app/build/outputs/apk/debug/app-debug.apk ./Aditya-Online-Center.apk
+          cat apk_chunks/chunk_*.b64 | base64 -d > ./Aditya-Online-Center.apk
+          ls -lh ./Aditya-Online-Center.apk
 
-      - name: Upload Aditya Online APK
+      - name: Upload Aditya Online APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Aditya-Online-Center-APK
           path: ./Aditya-Online-Center.apk
           if-no-files-found: error
+
+      - name: Publish Direct Download Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v1.0.0 ./Aditya-Online-Center.apk \
+            --title "Aditya Online Center APK v1.0" \
+            --notes "Direct Android APK download for Aditya Online Center (Kateya, Bihar)" \
+            --clobber || true
