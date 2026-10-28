@@ -1,8 +1,8 @@
-name: Build Aditya Online APK
+name: Build & Upload Aditya Online Center APK
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 permissions:
@@ -11,27 +11,59 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Project
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Assemble Verified Signed APK
-        run: |
-          cat apk_chunks/chunk_*.b64 | base64 -d > ./Aditya-Online-Center.apk
-          ls -lh ./Aditya-Online-Center.apk
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Upload Aditya Online APK Artifact
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Generate Debug Keystore if missing
+        run: |
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Build Debug APK
+        run: gradle assembleDebug
+
+      - name: Rename APK for Release
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk dist/AdityaOnlineCenter-v1.0.apk
+
+      - name: Upload APK as GitHub Actions Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Aditya-Online-Center-APK
-          path: ./Aditya-Online-Center.apk
-          if-no-files-found: error
+          name: AdityaOnlineCenter-v1.0-APK
+          path: dist/AdityaOnlineCenter-v1.0.apk
 
-      - name: Publish Direct Download Release
+      - name: Publish APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0
+          name: "Aditya Online Center v1.0 (Android APK)"
+          body: |
+            Official Android APK for **Aditya Online Center (Kateya, Gopalganj, Bihar)**.
+            - **Package ID:** `com.aistudio.adityaonline.ktybhr`
+            - **Supported Android Versions:** Android 7.0 (Nougat, API 24) to Android 16 (API 36)
+          files: dist/AdityaOnlineCenter-v1.0.apk
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create v1.0.0 ./Aditya-Online-Center.apk \
-            --title "Aditya Online Center APK v1.0" \
-            --notes "Direct Android APK download for Aditya Online Center (Kateya, Bihar)" \
-            --clobber || true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
