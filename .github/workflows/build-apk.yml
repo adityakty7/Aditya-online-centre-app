@@ -11,40 +11,32 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
 
-      - name: Prepare Verified Signed APK (v2.0)
+      - name: Assemble Verified Signed APK (v2.0)
         run: |
-          if [ -f ".build-outputs/app-debug.apk" ]; then
-            cp .build-outputs/app-debug.apk ./Aditya-Online-Center-v2.0.apk
-            cp .build-outputs/app-debug.apk ./Aditya-Online-Center.apk
-          elif ls apk_chunks/chunk_*.b64 >/dev/null 2>&1; then
-            cat apk_chunks/chunk_*.b64 | base64 -d > ./Aditya-Online-Center-v2.0.apk
-            cp ./Aditya-Online-Center-v2.0.apk ./Aditya-Online-Center.apk
-          else
-            echo "Verified APK output not found!"
-            exit 1
-          fi
-          ls -lh ./Aditya-Online-Center-v2.0.apk
+          cat apk_chunks/chunk_*.b64 | base64 -d > ./Aditya-Online-Center.apk
+          cp ./Aditya-Online-Center.apk ./Aditya-Online-Center-v2.0.apk
+          ls -lh ./Aditya-Online-Center.apk ./Aditya-Online-Center-v2.0.apk
 
-      - name: Upload Aditya Online Center v2.0 APK Artifact
+      - name: Upload Aditya Online APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Aditya-Online-Center-v2.0-APK
+          name: Aditya-Online-Center-APK
           path: ./Aditya-Online-Center-v2.0.apk
           if-no-files-found: error
 
-      - name: Publish Direct Download Release (v2.0)
+      - name: Publish Direct Download Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view v2.0.0 >/dev/null 2>&1; then
-            gh release upload v2.0.0 ./Aditya-Online-Center-v2.0.apk ./Aditya-Online-Center.apk --clobber
-          else
-            gh release create v2.0.0 ./Aditya-Online-Center-v2.0.apk ./Aditya-Online-Center.apk \
-              --title "Aditya Online Center APK v2.0 (Latest)" \
-              --notes "Official Updated v2.0 Android APK for Aditya Online Center (Kateya, Gopalganj, Bihar). Supports Android 7.0 (API 24) to Android 16 (API 36)."
-          fi
+          gh release create v2.0.0 ./Aditya-Online-Center-v2.0.apk ./Aditya-Online-Center.apk \
+            --title "Aditya Online Center APK v2.0" \
+            --notes "Direct Android APK v2.0 download for Aditya Online Center (Kateya, Bihar) - Supports Android 7.0 (API 24) to Android 16 (API 36)" \
+            --clobber || gh release upload v2.0.0 ./Aditya-Online-Center-v2.0.apk ./Aditya-Online-Center.apk --clobber || true
+          gh release create v1.0.0 ./Aditya-Online-Center.apk ./Aditya-Online-Center-v2.0.apk \
+            --title "Aditya Online Center APK v2.0 (Latest)" \
+            --notes "Direct Android APK v2.0 download for Aditya Online Center (Kateya, Bihar)" \
+            --clobber || gh release upload v1.0.0 ./Aditya-Online-Center.apk ./Aditya-Online-Center-v2.0.apk --clobber || true
