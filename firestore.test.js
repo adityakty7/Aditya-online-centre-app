@@ -23,14 +23,65 @@ function makeValidService(overrides = {}) {
     title: "Professional Resume Design",
     titleHi: "प्रोफेशनल रिज्यूमे डिज़ाइन",
     category: "resume",
+    shortDescription: "Recruiter-ready modern ATS resume.",
+    shortDescriptionHi: "आकर्षक आधुनिक रिज्यूमे डिज़ाइन।",
     description: "ATS-friendly modern resume prepared at Aditya Online Center.",
     descriptionHi: "आदित्य ऑनलाइन सेंटर में तैयार आधुनिक रिज्यूमे।",
     price: 100,
     turnaroundTime: "2 Hours",
-    requirements: ["Aadhaar Card", "Qualification Details"],
+    iconKey: "description",
+    requirements: [
+      "Aadhaar Card [Required] - Front & Back",
+      "Passport-size Photo [Optional] - Clear background",
+    ],
     imageUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4",
     active: true,
+    isFeatured: true,
+    featuredOrder: 1,
+    sortOrder: 1,
+    isArchived: false,
     createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+function makeValidCategory(overrides = {}) {
+  return {
+    tenantId: "aditya_online_center",
+    key: "csc_banking",
+    labelEn: "CSC & Banking",
+    labelHi: "सीएससी और बैंकिंग",
+    iconKey: "account_balance",
+    sortOrder: 6,
+    active: true,
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+function makeValidBusinessSettings(overrides = {}) {
+  return {
+    tenantId: "aditya_online_center",
+    centerName: "Aditya Online Center",
+    ownerName: "Aditya Kumar",
+    whatsappNumber: "9876543210",
+    phoneNumber: "9876543210",
+    email: "adityakty77@gmail.com",
+    location: "Main Market, Kateya, Gopalganj, Bihar - 841437",
+    workingHours: "Mon - Sat: 8:00 AM - 8:00 PM | Sun: 9:00 AM - 2:00 PM",
+    contactInstructions: "Send documents on WhatsApp with your Order ID.",
+    instagramUrl: "https://www.instagram.com/adityakty77",
+    facebookUrl: "https://www.facebook.com/adityakty77",
+    youtubeUrl: "https://www.youtube.com/@adityakty77",
+    telegramUrl: "https://t.me/adityakty77",
+    githubUrl: "https://github.com/adityakty7",
+    websiteUrl: "https://ais-pre-cmbpndycglfr6alxk6xzvv-470845985162.asia-east1.run.app",
+    socialLinksSpec: [
+      "instagram|Instagram|https://www.instagram.com/adityakty77|camera|true|1",
+      "whatsapp|WhatsApp|https://wa.me/919876543210|chat|true|2",
+    ],
     updatedAt: new Date("2026-01-01T00:00:00Z"),
     ...overrides,
   };
@@ -93,11 +144,15 @@ beforeEach(async () => {
         .collection("services")
         .doc("svc_inactive")
         .set(makeValidService({ active: false, price: 150 }));
+      await db
+        .collection("services")
+        .doc("svc_archived")
+        .set(makeValidService({ active: true, isArchived: true, price: 200 }));
     });
   }
 });
 
-test("1. Unauthenticated user cannot read services or orders", async () => {
+test("1. Unauthenticated user cannot read services, categories, settings, or orders", async () => {
   const unauthDb = testEnv.unauthenticatedContext().firestore();
   await assertFails(
     unauthDb
@@ -106,6 +161,8 @@ test("1. Unauthenticated user cannot read services or orders", async () => {
       .get()
   );
   await assertFails(unauthDb.collection("orders").get());
+  await assertFails(unauthDb.collection("categories").get());
+  await assertFails(unauthDb.collection("settings").doc("business_profile").get());
 });
 
 test("2. Authenticated customer can query services with tenantId filter", async () => {
@@ -118,7 +175,7 @@ test("2. Authenticated customer can query services with tenantId filter", async 
   );
 });
 
-test("3. Regular customer cannot create, update, or delete services", async () => {
+test("3. Regular customer cannot create, update, or delete services, categories, or business settings", async () => {
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
   await assertFails(
     aliceDb.collection("services").doc("svc_hack").set(makeValidService())
@@ -127,38 +184,72 @@ test("3. Regular customer cannot create, update, or delete services", async () =
     aliceDb.collection("services").doc("svc_resume").update({ price: 1 })
   );
   await assertFails(aliceDb.collection("services").doc("svc_resume").delete());
+  await assertFails(
+    aliceDb.collection("categories").doc("cat_hack").set(makeValidCategory())
+  );
+  await assertFails(
+    aliceDb
+      .collection("settings")
+      .doc("business_profile")
+      .set(makeValidBusinessSettings())
+  );
 });
 
-test("4. Authorized admin can create and update services", async () => {
+test("4. Authorized admin can create services with custom category, featured priority, sortOrder, and document checklist", async () => {
   const adminDb = testEnv.authenticatedContext(ADMIN_UID).firestore();
   await assertSucceeds(
-    adminDb.collection("services").doc("svc_pan").set(
+    adminDb.collection("services").doc("svc_csc_pan").set(
       makeValidService({
-        title: "PAN Card Assistance",
-        category: "certificate",
+        title: "PAN & CSC Digital Service",
+        category: "csc_banking",
         price: 120,
+        isFeatured: true,
+        featuredOrder: 2,
+        sortOrder: 4,
       })
     )
   );
 });
 
-test("5. Customer can create valid order for active service with matching priceSnapshot", async () => {
+test("5. Authorized admin can create and update custom categories and shared business contact settings", async () => {
+  const adminDb = testEnv.authenticatedContext(ADMIN_UID).firestore();
+  await assertSucceeds(
+    adminDb.collection("categories").doc("csc_banking").set(makeValidCategory())
+  );
+  await assertSucceeds(
+    adminDb
+      .collection("settings")
+      .doc("business_profile")
+      .set(makeValidBusinessSettings())
+  );
+
+  const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
+  await assertSucceeds(
+    aliceDb.collection("settings").doc("business_profile").get()
+  );
+  await assertSucceeds(
+    aliceDb
+      .collection("categories")
+      .where("tenantId", "==", "aditya_online_center")
+      .get()
+  );
+});
+
+test("6. Customer can create valid order for active non-archived service with matching priceSnapshot", async () => {
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
   await assertSucceeds(
     aliceDb.collection("orders").doc("ord_101").set(makeValidOrder(ALICE_UID))
   );
 });
 
-test("6. Customer cannot tamper with priceSnapshot or order an inactive service", async () => {
+test("7. Customer cannot tamper with priceSnapshot or order an inactive or archived service", async () => {
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
-  // Tampered price (10 instead of 100)
   await assertFails(
     aliceDb
       .collection("orders")
       .doc("ord_tamper")
       .set(makeValidOrder(ALICE_UID, { priceSnapshot: 10 }))
   );
-  // Inactive service
   await assertFails(
     aliceDb
       .collection("orders")
@@ -170,9 +261,20 @@ test("6. Customer cannot tamper with priceSnapshot or order an inactive service"
         })
       )
   );
+  await assertFails(
+    aliceDb
+      .collection("orders")
+      .doc("ord_archived")
+      .set(
+        makeValidOrder(ALICE_UID, {
+          serviceId: "svc_archived",
+          priceSnapshot: 200,
+        })
+      )
+  );
 });
 
-test("7. Customer cannot self-verify payment or spoof another user's UID", async () => {
+test("8. Customer cannot self-verify payment or spoof another user's UID", async () => {
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
   await assertFails(
     aliceDb
@@ -188,7 +290,7 @@ test("7. Customer cannot self-verify payment or spoof another user's UID", async
   );
 });
 
-test("8. Cross-user order isolation and query alignment enforced", async () => {
+test("9. Cross-user order isolation and query alignment enforced", async () => {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await context
       .firestore()
@@ -203,17 +305,14 @@ test("8. Cross-user order isolation and query alignment enforced", async () => {
   });
 
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
-  // Cannot read Bob's order
   await assertFails(aliceDb.collection("orders").doc("bob_ord").get());
-  // Cannot list all orders without userId filter
   await assertFails(aliceDb.collection("orders").get());
-  // Can list own orders with userId filter
   await assertSucceeds(
     aliceDb.collection("orders").where("userId", "==", ALICE_UID).get()
   );
 });
 
-test("9. Admin can update order status and verify payment; customer cannot mark order completed", async () => {
+test("10. Admin can update order status and verify payment; customer cannot mark order completed", async () => {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await context
       .firestore()
@@ -242,7 +341,7 @@ test("9. Admin can update order status and verify payment; customer cannot mark 
   );
 });
 
-test("10. Email spoofing with unverified admin email is rejected", async () => {
+test("11. Email spoofing with unverified admin email is rejected", async () => {
   const spoofedAdminDb = testEnv
     .authenticatedContext("attacker_999", {
       email: "adityakty77@gmail.com",

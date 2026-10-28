@@ -34,33 +34,97 @@ service cloud.firestore {
       );
     }
 
-    // 1. Validation Blueprint: ServiceItem
+    // 1. Validation Blueprint: ServiceItem (backward-compatible with extended Admin Panel fields)
     function isValidServiceItem(data) {
       return data.keys().hasAll([
                'tenantId', 'title', 'titleHi', 'category', 'description', 'descriptionHi',
                'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'createdAt', 'updatedAt'
              ]) &&
              data.keys().hasOnly([
-               'tenantId', 'title', 'titleHi', 'category', 'description', 'descriptionHi',
-               'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'createdAt', 'updatedAt'
+               'tenantId', 'title', 'titleHi', 'category', 'shortDescription', 'shortDescriptionHi',
+               'description', 'descriptionHi', 'price', 'turnaroundTime', 'iconKey',
+               'requirements', 'imageUrl', 'active', 'isFeatured', 'featuredOrder',
+               'sortOrder', 'isArchived', 'createdAt', 'updatedAt'
              ]) &&
              data.tenantId is string && data.tenantId == 'aditya_online_center' &&
-             data.title is string && data.title.size() >= 2 && data.title.size() <= 120 &&
-             data.titleHi is string && data.titleHi.size() >= 2 && data.titleHi.size() <= 200 &&
-             data.category is string && data.category in ['resume', 'gov_form', 'scholarship', 'pdf_doc', 'certificate'] &&
-             data.description is string && data.description.size() >= 5 && data.description.size() <= 2000 &&
-             data.descriptionHi is string && data.descriptionHi.size() >= 5 && data.descriptionHi.size() <= 2500 &&
+             data.title is string && data.title.size() >= 2 && data.title.size() <= 140 &&
+             data.titleHi is string && data.titleHi.size() >= 2 && data.titleHi.size() <= 220 &&
+             data.category is string && data.category.size() >= 2 && data.category.size() <= 64 &&
+             data.category.matches('^[a-zA-Z0-9_\\-]+$') &&
+             (!('shortDescription' in data) || (data.shortDescription is string && data.shortDescription.size() <= 300)) &&
+             (!('shortDescriptionHi' in data) || (data.shortDescriptionHi is string && data.shortDescriptionHi.size() <= 400)) &&
+             data.description is string && data.description.size() >= 5 && data.description.size() <= 3000 &&
+             data.descriptionHi is string && data.descriptionHi.size() >= 5 && data.descriptionHi.size() <= 3500 &&
              data.price is int && data.price >= 0 && data.price <= 100000 &&
-             data.turnaroundTime is string && data.turnaroundTime.size() >= 2 && data.turnaroundTime.size() <= 80 &&
-             data.requirements is list && data.requirements.size() <= 10 &&
-             (data.requirements.size() == 0 || (data.requirements[0] is string && data.requirements[0].size() <= 200)) &&
-             data.imageUrl is string && data.imageUrl.size() <= 500 &&
+             data.turnaroundTime is string && data.turnaroundTime.size() >= 2 && data.turnaroundTime.size() <= 100 &&
+             (!('iconKey' in data) || (data.iconKey is string && data.iconKey.size() <= 60)) &&
+             data.requirements is list && data.requirements.size() <= 25 &&
+             (data.requirements.size() == 0 || (data.requirements[0] is string && data.requirements[0].size() <= 300)) &&
+             data.imageUrl is string && data.imageUrl.size() <= 250000 &&
+             data.active is bool &&
+             (!('isFeatured' in data) || data.isFeatured is bool) &&
+             (!('featuredOrder' in data) || (data.featuredOrder is int && data.featuredOrder >= 0 && data.featuredOrder <= 100000)) &&
+             (!('sortOrder' in data) || (data.sortOrder is int && data.sortOrder >= 0 && data.sortOrder <= 100000)) &&
+             (!('isArchived' in data) || data.isArchived is bool) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 2. Validation Blueprint: ServiceCategoryItem
+    function isValidServiceCategoryItem(data) {
+      return data.keys().hasAll([
+               'tenantId', 'key', 'labelEn', 'labelHi', 'iconKey', 'sortOrder', 'active', 'createdAt', 'updatedAt'
+             ]) &&
+             data.keys().hasOnly([
+               'tenantId', 'key', 'labelEn', 'labelHi', 'iconKey', 'sortOrder', 'active', 'createdAt', 'updatedAt'
+             ]) &&
+             data.tenantId is string && data.tenantId == 'aditya_online_center' &&
+             data.key is string && data.key.size() >= 2 && data.key.size() <= 64 && data.key.matches('^[a-zA-Z0-9_\\-]+$') &&
+             data.labelEn is string && data.labelEn.size() >= 2 && data.labelEn.size() <= 80 &&
+             data.labelHi is string && data.labelHi.size() >= 1 && data.labelHi.size() <= 120 &&
+             data.iconKey is string && data.iconKey.size() >= 1 && data.iconKey.size() <= 60 &&
+             data.sortOrder is int && data.sortOrder >= 0 && data.sortOrder <= 10000 &&
              data.active is bool &&
              data.createdAt is timestamp && data.createdAt <= request.time &&
              data.updatedAt is timestamp && data.updatedAt <= request.time;
     }
 
-    // 2. Validation Blueprint: ServiceOrder
+    // 3. Validation Blueprint: BusinessSettings
+    function isValidBusinessSettings(data) {
+      return data.keys().hasAll([
+               'tenantId', 'centerName', 'ownerName', 'whatsappNumber', 'phoneNumber',
+               'email', 'location', 'workingHours', 'contactInstructions',
+               'instagramUrl', 'facebookUrl', 'youtubeUrl', 'telegramUrl',
+               'githubUrl', 'websiteUrl', 'socialLinksSpec', 'updatedAt'
+             ]) &&
+             data.keys().hasOnly([
+               'tenantId', 'centerName', 'ownerName', 'whatsappNumber', 'phoneNumber',
+               'email', 'location', 'workingHours', 'contactInstructions',
+               'instagramUrl', 'facebookUrl', 'youtubeUrl', 'telegramUrl',
+               'githubUrl', 'websiteUrl', 'socialLinksSpec', 'createdAt', 'updatedAt'
+             ]) &&
+             data.tenantId is string && data.tenantId == 'aditya_online_center' &&
+             data.centerName is string && data.centerName.size() >= 2 && data.centerName.size() <= 120 &&
+             data.ownerName is string && data.ownerName.size() >= 2 && data.ownerName.size() <= 100 &&
+             data.whatsappNumber is string && data.whatsappNumber.matches('^[0-9]{10}$') &&
+             data.phoneNumber is string && data.phoneNumber.matches('^[0-9]{10}$') &&
+             data.email is string && data.email.size() >= 5 && data.email.size() <= 150 &&
+             data.location is string && data.location.size() >= 2 && data.location.size() <= 300 &&
+             data.workingHours is string && data.workingHours.size() <= 200 &&
+             data.contactInstructions is string && data.contactInstructions.size() <= 500 &&
+             data.instagramUrl is string && data.instagramUrl.size() <= 300 &&
+             data.facebookUrl is string && data.facebookUrl.size() <= 300 &&
+             data.youtubeUrl is string && data.youtubeUrl.size() <= 300 &&
+             data.telegramUrl is string && data.telegramUrl.size() <= 300 &&
+             data.githubUrl is string && data.githubUrl.size() <= 300 &&
+             data.websiteUrl is string && data.websiteUrl.size() <= 300 &&
+             data.socialLinksSpec is list && data.socialLinksSpec.size() <= 15 &&
+             (data.socialLinksSpec.size() == 0 || (data.socialLinksSpec[0] is string && data.socialLinksSpec[0].size() <= 500)) &&
+             (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time)) &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 4. Validation Blueprint: ServiceOrder
     function isValidServiceOrder(data) {
       return data.keys().hasAll([
                'orderNumber', 'userId', 'customerUid', 'customerName', 'customerPhone', 'customerEmail',
@@ -96,7 +160,7 @@ service cloud.firestore {
              data.updatedAt is timestamp && data.updatedAt <= request.time;
     }
 
-    // 3. Validation Blueprint: UserProfile
+    // 5. Validation Blueprint: UserProfile
     function isValidUserProfile(data) {
       return data.keys().hasAll([
                'userId', 'name', 'email', 'phone', 'address', 'preferredLanguage', 'createdAt', 'updatedAt'
@@ -131,11 +195,45 @@ service cloud.firestore {
                        incoming().tenantId == existing().tenantId &&
                        isAdmin() &&
                        incoming().diff(existing()).affectedKeys().hasOnly([
-                         'title', 'titleHi', 'category', 'description', 'descriptionHi',
-                         'price', 'turnaroundTime', 'requirements', 'imageUrl', 'active', 'updatedAt'
+                         'title', 'titleHi', 'category', 'shortDescription', 'shortDescriptionHi',
+                         'description', 'descriptionHi', 'price', 'turnaroundTime', 'iconKey',
+                         'requirements', 'imageUrl', 'active', 'isFeatured', 'featuredOrder',
+                         'sortOrder', 'isArchived', 'updatedAt'
                        ]);
 
       allow delete: if isSignedIn() && isValidId(serviceId) && isAdmin();
+    }
+
+    // Collection: /categories/{categoryId}
+    match /categories/{categoryId} {
+      allow get, list: if isSignedIn() && (existing().tenantId == 'aditya_online_center' || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(categoryId) &&
+                       isValidServiceCategoryItem(incoming()) &&
+                       isAdmin();
+
+      allow update: if isSignedIn() &&
+                       isValidId(categoryId) &&
+                       isValidServiceCategoryItem(incoming()) &&
+                       incoming().tenantId == existing().tenantId &&
+                       incoming().key == existing().key &&
+                       incoming().createdAt == existing().createdAt &&
+                       isAdmin();
+
+      allow delete: if isSignedIn() && isValidId(categoryId) && isAdmin();
+    }
+
+    // Collection: /settings/{settingId}
+    match /settings/{settingId} {
+      allow get, list: if isSignedIn() && (existing().tenantId == 'aditya_online_center' || isAdmin());
+
+      allow create, update: if isSignedIn() &&
+                               isValidId(settingId) &&
+                               isValidBusinessSettings(incoming()) &&
+                               isAdmin();
+
+      allow delete: if false;
     }
 
     // Collection: /orders/{orderId}
@@ -154,6 +252,8 @@ service cloud.firestore {
                        incoming().deliveryFileUrl == '' &&
                        exists(/databases/$(database)/documents/services/$(incoming().serviceId)) &&
                        get(/databases/$(database)/documents/services/$(incoming().serviceId)).data.active == true &&
+                       (!('isArchived' in get(/databases/$(database)/documents/services/$(incoming().serviceId)).data) ||
+                        get(/databases/$(database)/documents/services/$(incoming().serviceId)).data.isArchived == false) &&
                        get(/databases/$(database)/documents/services/$(incoming().serviceId)).data.price == incoming().priceSnapshot;
 
       allow update: if isSignedIn() &&

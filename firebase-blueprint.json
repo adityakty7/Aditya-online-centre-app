@@ -19,8 +19,15 @@
         },
         "category": {
           "type": "string",
-          "enum": ["resume", "gov_form", "scholarship", "pdf_doc", "certificate"],
-          "description": "Service category key."
+          "description": "Service category key (built-in or admin-created custom category ID)."
+        },
+        "shortDescription": {
+          "type": "string",
+          "description": "Concise summary shown on service cards (English)."
+        },
+        "shortDescriptionHi": {
+          "type": "string",
+          "description": "Concise summary shown on service cards (Hindi)."
         },
         "description": {
           "type": "string",
@@ -38,17 +45,37 @@
           "type": "string",
           "description": "Estimated processing time."
         },
+        "iconKey": {
+          "type": "string",
+          "description": "Identifier for the built-in searchable service icon."
+        },
         "requirements": {
           "type": "array",
-          "description": "Bounded list of required documents (up to 10 strings)."
+          "description": "Bounded list of required/optional document specifications (up to 25 strings)."
         },
         "imageUrl": {
           "type": "string",
-          "description": "HTTPS URL or resource identifier for the service visual."
+          "description": "HTTPS URL or compressed data URI for the service cover image."
         },
         "active": {
           "type": "boolean",
           "description": "Whether the service can currently be ordered by customers."
+        },
+        "isFeatured": {
+          "type": "boolean",
+          "description": "Whether the service is highlighted in the Featured section on Home."
+        },
+        "featuredOrder": {
+          "type": "integer",
+          "description": "Priority sort position among featured services."
+        },
+        "sortOrder": {
+          "type": "integer",
+          "description": "Display order position in the main service catalogue."
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "Soft-deletion / archival flag preserving historical orders."
         },
         "createdAt": {
           "type": "string",
@@ -74,6 +101,157 @@
         "imageUrl",
         "active",
         "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ServiceCategoryItem": {
+      "title": "ServiceCategoryItem",
+      "description": "Service category managed by admins and shared between the website and Android app.",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "Shared business identifier ('aditya_online_center')."
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique category slug/key."
+        },
+        "labelEn": {
+          "type": "string",
+          "description": "Category display name in English."
+        },
+        "labelHi": {
+          "type": "string",
+          "description": "Category display name in Hindi."
+        },
+        "iconKey": {
+          "type": "string",
+          "description": "Icon identifier for the category."
+        },
+        "sortOrder": {
+          "type": "integer",
+          "description": "Display order of the category."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Whether the category is active."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp."
+        }
+      },
+      "required": [
+        "tenantId",
+        "key",
+        "labelEn",
+        "labelHi",
+        "iconKey",
+        "sortOrder",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BusinessSettings": {
+      "title": "BusinessSettings",
+      "description": "Shared business contact information, working hours, and social media profiles for Aditya Online Center.",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "Shared business identifier ('aditya_online_center')."
+        },
+        "centerName": {
+          "type": "string",
+          "description": "Business display name."
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "Proprietor / owner display name."
+        },
+        "whatsappNumber": {
+          "type": "string",
+          "description": "10-digit WhatsApp business number."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "10-digit support phone number."
+        },
+        "email": {
+          "type": "string",
+          "description": "Support email address."
+        },
+        "location": {
+          "type": "string",
+          "description": "Shop address and locality in Kateya, Gopalganj, Bihar."
+        },
+        "workingHours": {
+          "type": "string",
+          "description": "Business operating hours."
+        },
+        "contactInstructions": {
+          "type": "string",
+          "description": "Optional customer contact instructions."
+        },
+        "instagramUrl": {
+          "type": "string",
+          "description": "Instagram profile URL."
+        },
+        "facebookUrl": {
+          "type": "string",
+          "description": "Facebook profile URL."
+        },
+        "youtubeUrl": {
+          "type": "string",
+          "description": "YouTube channel URL."
+        },
+        "telegramUrl": {
+          "type": "string",
+          "description": "Telegram channel/chat URL."
+        },
+        "githubUrl": {
+          "type": "string",
+          "description": "GitHub profile URL."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "Official web portal URL."
+        },
+        "socialLinksSpec": {
+          "type": "array",
+          "description": "Ordered list of serialized social media profile entries (up to 15 strings)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp."
+        }
+      },
+      "required": [
+        "tenantId",
+        "centerName",
+        "ownerName",
+        "whatsappNumber",
+        "phoneNumber",
+        "email",
+        "location",
+        "workingHours",
+        "contactInstructions",
+        "instagramUrl",
+        "facebookUrl",
+        "youtubeUrl",
+        "telegramUrl",
+        "githubUrl",
+        "websiteUrl",
+        "socialLinksSpec",
         "updatedAt"
       ]
     },
@@ -260,6 +438,14 @@
     "/services/{serviceId}": {
       "schema": { "$ref": "#/entities/ServiceItem" },
       "description": "Shared service catalogue managed by admins and read by authenticated customers."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/ServiceCategoryItem" },
+      "description": "Shared service categories managed by admins and read by authenticated customers."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/BusinessSettings" },
+      "description": "Shared business contact details, working hours, and social media profiles."
     },
     "/orders/{orderId}": {
       "schema": { "$ref": "#/entities/ServiceOrder" },
