@@ -1,4 +1,4 @@
-# Aditya Online Center — Android App (Kateya, Gopalganj, Bihar)
+# Aditya Online Center — Android App v2.0 (Kateya, Gopalganj, Bihar)
 
 Official mobile application for **Aditya Online Center**, Main Market, Kateya, District Gopalganj, Bihar.
 
@@ -8,21 +8,19 @@ Official mobile application for **Aditya Online Center**, Main Market, Kateya, D
 | :--- | :--- |
 | **App Name** | Aditya Online (`Aditya Online Center`) |
 | **Package ID (`applicationId`)** | `com.aistudio.adityaonline.ktybhr` |
-| **App Version** | `1.0` (`versionCode = 1`) |
+| **App Version** | **`2.0`** (`versionCode = 2`) |
 | **Minimum Android Version (`minSdk`)** | **Android 7.0 (Nougat / API Level 24)** |
 | **Target & Compile SDK (`targetSdk`)** | **Android 16 (API Level 36)** |
 | **Supported Languages** | English & Hindi (हिंदी / EN 1-tap toggle) |
 
 ---
 
-## ⬇️ How to Download the APK
+## ⬇️ How to Download the Updated v2.0 APK
 
-### Option 1: Direct Download from Google AI Studio
-1. Open the top-right **Settings / Export** menu in Google AI Studio.
-2. Click **Download APK** (or **Generate APK**).
+1. **From GitHub Releases (Recommended)**:
+   - Open the **Releases** section of this GitHub repository.
+   - Select **`Aditya Online Center APK v2.0 (Latest)`**.
+   - Tap **`Aditya-Online-Center-v2.0.apk`** to download and install on your Android phone.
 
-### Option 2: Download from GitHub Releases / Actions
-Whenever this project is pushed to GitHub using the **GitHub** button in AI Studio:
-1. Open your GitHub repository.
-2. Go to the **Releases** section on the right sidebar (or the **Actions** tab -> `Build & Upload Aditya Online Center APK`).
-3. Download **`AdityaOnlineCenter-v1.0.apk`** directly to your phone and install it.
+2. **From GitHub Actions Artifacts**:
+   - Open the **Actions** tab -> click the latest green `✅` workflow run -> download **`Aditya-Online-Center-v2.0-APK`**.
